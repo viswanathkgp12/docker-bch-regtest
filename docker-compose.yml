@@ -1,0 +1,23 @@
+version: "3"
+services:
+  bitcoind:
+    build: .
+    # specify additional command line arguments here
+    command: ./startup.sh
+    ports:
+      # change to 18333 if running testnet
+      - "8333:8333"
+      # JSON-RPC
+      - "8332:8332"
+      # ZMQ
+      - "28332:28332"
+    volumes:
+      # using a custom path for data dir
+      - ./data:/data
+      # using a custom path for custom bitcoin.conf
+      - ./bitcoin.conf:/data/bitcoin.conf
+    networks:
+      - bitcoin
+
+networks:
+  bitcoin:
