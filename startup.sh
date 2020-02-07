@@ -5,11 +5,11 @@ if [[ "$1" == "bitcoin-cli" || "$1" == "bitcoin-tx" || "$1" == "bitcoind" || "$1
 	mkdir -p "$BITCOIN_DATA"
 
 	if [[ ! -s "$BITCOIN_DATA/bitcoin.conf" ]]; then
-		cat <<-EOF > "$BITCOIN_DATA/bitcoin.conf"
-		printtoconsole=1
-		rpcallowip=::/0
-		rpcpassword=${BITCOIN_RPC_PASSWORD:-password}
-		rpcuser=${BITCOIN_RPC_USER:-bitcoin}
+		cat <<-EOF >"$BITCOIN_DATA/bitcoin.conf"
+			printtoconsole=1
+			rpcallowip=::/0
+			rpcpassword=${BITCOIN_RPC_PASSWORD:-password}
+			rpcuser=${BITCOIN_RPC_USER:-bitcoin}
 		EOF
 		chown bitcoin:bitcoin "$BITCOIN_DATA/bitcoin.conf"
 	fi
@@ -22,9 +22,8 @@ if [[ "$1" == "bitcoin-cli" || "$1" == "bitcoin-tx" || "$1" == "bitcoind" || "$1
 	chown -h bitcoin:bitcoin /home/bitcoin/.bitcoin
 fi
 
-
 echo "Starting bitcoind in regtest mode ..."
-bitcoind -regtest --datadir=/data --conf=/data/bitcoin.conf
+bitcoind -regtest --daemon --datadir=/data --conf=/bitcoin.conf
 echo "Regtest setup successfully"
 
 sleep 5
@@ -36,4 +35,11 @@ bitcoin-cli -regtest $AUTH getblockchaininfo
 bitcoin-cli -regtest $AUTH generate 110
 bitcoin-cli -regtest $AUTH importprivkey "cVVGgzVgcc5S3owCskoneK8R1BNGkBveiEcGDaxu8RRDvFcaQaSG" "Account1" false
 
-while true ; do bitcoin-cli -regtest $AUTH generate 1 & sleep 5; done
+while true; do
+    PENDINGTXSCOUNT=$(bitcoin-cli -regtest $AUTH getmempoolinfo | jq -r ".size")
+	if [ "$PENDINGTXSCOUNT" -ne 0 ]; then
+		echo "Mining new block...."
+		bitcoin-cli -regtest $AUTH generate 1
+	fi
+	sleep 5
+done

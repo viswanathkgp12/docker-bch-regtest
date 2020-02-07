@@ -4,7 +4,7 @@ RUN groupadd -r bitcoin && useradd -r -m -g bitcoin bitcoin
 
 RUN set -ex \
 	&& apt-get update \
-	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr gosu gpg wget \
+	&& apt-get install -qq --no-install-recommends ca-certificates dirmngr gosu gpg wget jq \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV BITCOIN_VERSION 0.20.9
@@ -29,6 +29,7 @@ VOLUME /data
 
 COPY docker-entrypoint.sh /entrypoint.sh
 COPY startup.sh /startup.sh
+COPY bitcoin.conf /bitcoin.conf
 
 RUN chmod +x startup.sh entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

@@ -2,6 +2,7 @@ version: "3"
 services:
   bitcoind:
     build: .
+    container_name: bch-bitcoind
     # specify additional command line arguments here
     command: ./startup.sh
     ports:
@@ -14,8 +15,6 @@ services:
     volumes:
       # using a custom path for data dir
       - ./data:/data
-      # using a custom path for custom bitcoin.conf
-      - ./bitcoin.conf:/data/bitcoin.conf
     networks:
       - bitcoin
 
